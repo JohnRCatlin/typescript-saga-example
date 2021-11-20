@@ -8,58 +8,77 @@ import {StepStatus} from './StepStatus';
 class OrderProcessorSteps {
   /**
    *
-   * @param evelope
+   * @param envelope
    */
-  static async createOrder(evelope: OrderProcessingEvelope) {
+  static async placeOrder(envelope: OrderProcessingEvelope) {
     console.log('create order logic ...');
     if (isRandomFail()) {
-      evelope.orderCreateStatus = StepStatus.FAIL;
-      throw new Error('FAILED (create order logic)');
+      envelope.orderPlaced = false;
+      envelope.placeOrderStatus = StepStatus.FAIL;
+      throw new Error('FAILED (create order logic ...)');
     }
-    evelope.orderCreateStatus = StepStatus.SUCCESS;
-    console.log('SUCCESS (create order logic)');
+    envelope.orderPlaced = true;
+    envelope.placeOrderStatus = StepStatus.SUCCESS;
   }
 
   /**
    *
-   * @param evelope
+   * @param envelope
    */
-  static async compensateCreateOrder(evelope: OrderProcessingEvelope) {
-    console.log('compensate create order logic ...');
+  static async undoPlaceOrder(envelope: OrderProcessingEvelope) {
+    console.log('undo create order logic ...');
     if (isRandomFail()) {
-      evelope.processConsistencyStatus = ProcessConsistencyStatus.INCONSISTENT;
-      throw new Error('FAILED (compensate create order logic)');
+      envelope.processConsistentStatus = ProcessConsistencyStatus.INCONSISTENT;
+      envelope.placeOrderStatus = StepStatus.UNDO_FAIL;
+      throw new Error('FAILED (undo create order logic ...)');
     }
-    evelope.processConsistencyStatus = ProcessConsistencyStatus.CONSISTENT;
-    console.log('SUCCESS (compensate create order logic)');
+    envelope.orderPlaced = false;
+    envelope.placeOrderStatus = StepStatus.UNDO_SUCCESS;
   }
 
   /**
    *
-   * @param evelope
+   * @param envelope
    */
-  static async reserveCredit(evelope: OrderProcessingEvelope) {
+  static async reserveCredit(envelope: OrderProcessingEvelope) {
     console.log('reserve credit logic ...');
     if (isRandomFail()) {
-      evelope.creditReserveStatus = StepStatus.FAIL;
-      throw new Error('FAILED (reserve credit logic)');
+      envelope.creditReserved = false;
+      envelope.reserveCreditStatus = StepStatus.FAIL;
+      throw new Error('FAILED (reserve credit logic ...)');
     }
-    evelope.creditReserveStatus = StepStatus.SUCCESS;
-    console.log('SUCCESS (reserve credit logic)');
+    envelope.creditReserved = true;
+    envelope.reserveCreditStatus = StepStatus.SUCCESS;
   }
 
   /**
    *
-   * @param evelope
+   * @param envelope
    */
-  static async orderApproval(evelope: OrderProcessingEvelope) {
+  static async undoReserveCredit(envelope: OrderProcessingEvelope) {
+    console.log('undo reserve credit logic ...');
+    if (isRandomFail()) {
+      envelope.reserveCreditStatus = StepStatus.UNDO_FAIL;
+      envelope.processConsistentStatus = ProcessConsistencyStatus.INCONSISTENT;
+      throw new Error('FAILED (undo reserve credit logic ...)');
+    }
+    envelope.creditReserved = false;
+    envelope.reserveCreditStatus = StepStatus.UNDO_SUCCESS;
+  }
+
+  /**
+   *
+   * @param envelope
+   */
+  static async approveOrder(envelope: OrderProcessingEvelope) {
     console.log('approve order logic ...');
     if (isRandomFail()) {
-      evelope.orderApprovalStatus = StepStatus.FAIL;
-      throw new Error('FAILED (approve order logic)');
+      envelope.orderApproved = false;
+      envelope.approveOrderStatus = StepStatus.FAIL;
+      throw new Error('FAILED (approve order logic ...)');
     }
-    evelope.orderApprovalStatus = StepStatus.SUCCESS;
-    console.log('SUCCESS (approve order logic)');
+    envelope.orderApproved = true;
+    envelope.approveOrderStatus = StepStatus.SUCCESS;
   }
 }
 

@@ -1,5 +1,5 @@
 import {Order} from './Order';
-import {ProcessConsistencyStatus} from './ProcessConsistencyStatus';
+import {ProcessConsistencyStatus as ProcessConsistentStatus} from './ProcessConsistencyStatus';
 import {StepStatus} from './StepStatus';
 
 /**
@@ -8,10 +8,15 @@ import {StepStatus} from './StepStatus';
 class OrderProcessingEvelope {
   order: Order;
 
-  processConsistencyStatus: ProcessConsistencyStatus;
-  orderCreateStatus: StepStatus;
-  orderApprovalStatus: StepStatus;
-  creditReserveStatus: StepStatus;
+  orderPlaced: boolean;
+  creditReserved: boolean;
+  orderApproved: boolean;
+
+  placeOrderStatus: StepStatus;
+  reserveCreditStatus: StepStatus;
+  approveOrderStatus: StepStatus;
+
+  processConsistentStatus: ProcessConsistentStatus;
 
   /**
    *
@@ -19,11 +24,16 @@ class OrderProcessingEvelope {
    */
   public constructor(order: Order) {
     this.order = order;
-    this.processConsistencyStatus = ProcessConsistencyStatus.CONSISTENT;
-    this.processConsistencyStatus = ProcessConsistencyStatus.CONSISTENT;
-    this.orderCreateStatus = StepStatus.NONE;
-    this.orderApprovalStatus = StepStatus.NONE;
-    this.creditReserveStatus = StepStatus.NONE;
+
+    this.orderPlaced = false;
+    this.creditReserved = false;
+    this.orderApproved = false;
+
+    this.placeOrderStatus = StepStatus.NONE;
+    this.reserveCreditStatus = StepStatus.NONE;
+    this.approveOrderStatus = StepStatus.NONE;
+
+    this.processConsistentStatus = ProcessConsistentStatus.CONSISTENT;
   }
 }
 

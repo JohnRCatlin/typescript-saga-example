@@ -15,20 +15,23 @@ type OrderProcessorOutcome = OrderProcessingEvelope;
 const OrderProcessorSaga = new SagaBuilder<OrderProcessingEvelope>()
   .step('Create order')
   .invoke(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.createOrder(order);
+    await OrderProcessorSteps.placeOrder(order);
   })
   .withCompensation(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.compensateCreateOrder(order);
+    await OrderProcessorSteps.undoPlaceOrder(order);
   })
 
   .step('Reserve credit')
   .invoke(async (order: OrderProcessingEvelope) => {
     await OrderProcessorSteps.reserveCredit(order);
   })
+  .withCompensation(async (order: OrderProcessingEvelope) => {
+    await OrderProcessorSteps.undoReserveCredit(order);
+  })
 
   .step('Approve order')
   .invoke(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.orderApproval(order);
+    await OrderProcessorSteps.approveOrder(order);
   })
   .build();
 

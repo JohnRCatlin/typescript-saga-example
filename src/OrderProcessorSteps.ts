@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import {Service} from 'typedi';
+
 import {OrderProcessingEvelope} from './OrderProcessingEvelope';
 import {ProcessConsistencyStatus} from './ProcessConsistencyStatus';
 import {StepStatus} from './StepStatus';
@@ -5,17 +8,20 @@ import {StepStatus} from './StepStatus';
 /**
  *
  */
+@Service()
 class OrderProcessorSteps {
+  constructor() {}
+
   /**
    *
    * @param envelope
    */
-  static async placeOrder(envelope: OrderProcessingEvelope) {
-    console.log('create order logic ...');
-    if (isRandomFail()) {
+  async placeOrder(envelope: OrderProcessingEvelope) {
+    console.log('place order logic ...');
+    if (this.isRandomFail()) {
       envelope.orderPlaced = false;
       envelope.placeOrderStatus = StepStatus.FAIL;
-      throw new Error('FAILED (create order logic ...)');
+      throw new Error('FAILED (place order logic ...)');
     }
     envelope.orderPlaced = true;
     envelope.placeOrderStatus = StepStatus.SUCCESS;
@@ -25,12 +31,12 @@ class OrderProcessorSteps {
    *
    * @param envelope
    */
-  static async undoPlaceOrder(envelope: OrderProcessingEvelope) {
-    console.log('undo create order logic ...');
-    if (isRandomFail()) {
+  async undoPlaceOrder(envelope: OrderProcessingEvelope) {
+    console.log('undo place order logic ...');
+    if (this.isRandomFail()) {
       envelope.processConsistentStatus = ProcessConsistencyStatus.INCONSISTENT;
       envelope.placeOrderStatus = StepStatus.UNDO_FAIL;
-      throw new Error('FAILED (undo create order logic ...)');
+      throw new Error('FAILED (undo place order logic ...)');
     }
     envelope.orderPlaced = false;
     envelope.placeOrderStatus = StepStatus.UNDO_SUCCESS;
@@ -40,9 +46,9 @@ class OrderProcessorSteps {
    *
    * @param envelope
    */
-  static async reserveCredit(envelope: OrderProcessingEvelope) {
+  async reserveCredit(envelope: OrderProcessingEvelope) {
     console.log('reserve credit logic ...');
-    if (isRandomFail()) {
+    if (this.isRandomFail()) {
       envelope.creditReserved = false;
       envelope.reserveCreditStatus = StepStatus.FAIL;
       throw new Error('FAILED (reserve credit logic ...)');
@@ -55,9 +61,9 @@ class OrderProcessorSteps {
    *
    * @param envelope
    */
-  static async undoReserveCredit(envelope: OrderProcessingEvelope) {
+  async undoReserveCredit(envelope: OrderProcessingEvelope) {
     console.log('undo reserve credit logic ...');
-    if (isRandomFail()) {
+    if (this.isRandomFail()) {
       envelope.reserveCreditStatus = StepStatus.UNDO_FAIL;
       envelope.processConsistentStatus = ProcessConsistencyStatus.INCONSISTENT;
       throw new Error('FAILED (undo reserve credit logic ...)');
@@ -70,9 +76,9 @@ class OrderProcessorSteps {
    *
    * @param envelope
    */
-  static async approveOrder(envelope: OrderProcessingEvelope) {
+  async approveOrder(envelope: OrderProcessingEvelope) {
     console.log('approve order logic ...');
-    if (isRandomFail()) {
+    if (this.isRandomFail()) {
       envelope.orderApproved = false;
       envelope.approveOrderStatus = StepStatus.FAIL;
       throw new Error('FAILED (approve order logic ...)');
@@ -80,16 +86,12 @@ class OrderProcessorSteps {
     envelope.orderApproved = true;
     envelope.approveOrderStatus = StepStatus.SUCCESS;
   }
-}
 
-/**
- *
- * @returns
- */
-function isRandomFail(): boolean {
-  const failureCoefficient = 4;
-  const randomInt = Math.floor(Math.random() * failureCoefficient);
-  return randomInt % failureCoefficient === 0 ? true : false;
+  private isRandomFail(): boolean {
+    const failureCoefficient = 4;
+    const randomInt = Math.floor(Math.random() * failureCoefficient);
+    return randomInt % failureCoefficient === 0 ? true : false;
+  }
 }
 
 export {OrderProcessorSteps};

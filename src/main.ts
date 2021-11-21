@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+import {Container} from 'typedi';
 import {OrderProcessor, OrderProcessorOutcome} from './OrderProcessor';
 import {Order} from './Order';
 
@@ -6,8 +8,8 @@ import {Order} from './Order';
  */
 async function main() {
   const order: Order = new Order(123, 456);
-  const processor: OrderProcessor = new OrderProcessor(order);
-  const outcome: OrderProcessorOutcome = await processor.execute();
+  const processor = Container.get(OrderProcessor);
+  const outcome: OrderProcessorOutcome = await processor.execute(order);
   console.log(`outcome = ${JSON.stringify(outcome, null, 2)}`);
 }
 

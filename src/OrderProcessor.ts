@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import {Service} from 'typedi';
+
 import {
   SagaBuilder,
   SagaCompensationFailed,
@@ -10,52 +13,42 @@ import {OrderProcessorSteps} from './OrderProcessorSteps';
 type OrderProcessorOutcome = OrderProcessingEvelope;
 
 /**
- * The order processing saga.
- */
-const OrderProcessorSaga = new SagaBuilder<OrderProcessingEvelope>()
-  .step('Create order')
-  .invoke(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.placeOrder(order);
-  })
-  .withCompensation(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.undoPlaceOrder(order);
-  })
-
-  .step('Reserve credit')
-  .invoke(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.reserveCredit(order);
-  })
-  .withCompensation(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.undoReserveCredit(order);
-  })
-
-  .step('Approve order')
-  .invoke(async (order: OrderProcessingEvelope) => {
-    await OrderProcessorSteps.approveOrder(order);
-  })
-  .build();
-
-/**
  * An order processor.
  */
+@Service()
 class OrderProcessor {
-  private order: Order;
+  constructor(private stepsProcessor: OrderProcessorSteps) {}
 
-  /**
-   * The order to process.
-   * @param order
-   */
-  constructor(order: Order) {
-    this.order = order;
-  }
+  private saga = new SagaBuilder<OrderProcessingEvelope>()
+    .step('Create order')
+    .invoke(async (order: OrderProcessingEvelope) => {
+      await this.stepsProcessor.placeOrder(order);
+    })
+    .withCompensation(async (order: OrderProcessingEvelope) => {
+      await this.stepsProcessor.undoPlaceOrder(order);
+    })
+
+    .step('Reserve credit')
+    .invoke(async (order: OrderProcessingEvelope) => {
+      await this.stepsProcessor.reserveCredit(order);
+    })
+    .withCompensation(async (order: OrderProcessingEvelope) => {
+      await this.stepsProcessor.undoReserveCredit(order);
+    })
+
+    .step('Approve order')
+    .invoke(async (order: OrderProcessingEvelope) => {
+      await this.stepsProcessor.approveOrder(order);
+    })
+    .build();
 
   /**
    * Process the order.
    * @returns
    */
-  async execute(): Promise<OrderProcessorOutcome> {
-    const evelope = new OrderProcessingEvelope(this.order);
-    await OrderProcessorSaga.execute(evelope).catch(e => {
+  async execute(order: Order): Promise<OrderProcessorOutcome> {
+    const envelope = new OrderProcessingEvelope(order);
+    await this.saga.execute(envelope).catch(e => {
       if (e instanceof SagaExecutionFailed) {
         //processing failure.
         //revert success.
@@ -66,7 +59,7 @@ class OrderProcessor {
         console.log(e.message);
       }
     });
-    return evelope;
+    return envelope;
   }
 }
 

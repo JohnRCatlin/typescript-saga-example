@@ -9,7 +9,7 @@ import {StepStatus} from './StepStatus';
  *
  */
 @Service()
-class OrderProcessorSteps {
+class FauxOrderProcessorSteps {
   constructor() {}
 
   /**
@@ -94,4 +94,4 @@ class OrderProcessorSteps {
   }
 }
 
-export {OrderProcessorSteps};
+export {FauxOrderProcessorSteps as OrderProcessorSteps};

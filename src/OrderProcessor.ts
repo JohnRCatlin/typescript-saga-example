@@ -8,7 +8,7 @@ import {
 } from 'node-sagas';
 import {Order} from './Order';
 import {OrderProcessingEvelope} from './OrderProcessingEvelope';
-import {OrderProcessorSteps} from './OrderProcessorSteps';
+import {OrderProcessorSteps} from './FauxOrderProcessorSteps';
 
 type OrderProcessorOutcome = OrderProcessingEvelope;
 
